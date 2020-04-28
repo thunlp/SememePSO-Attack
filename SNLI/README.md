@@ -11,6 +11,7 @@ loguru == 0.3.2
 ## Necessary Data Download
 ### Download SNLI Data
 Download SNLI data from https://nlp.stanford.edu/projects/snli/snli_1.0.zip
+Download dataset.zip from https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/
 ### Download Glove Vectors
 Download glove vectors from http://nlp.stanford.edu/data/glove.840B.300d.zip
 ### Download Stanford Pos Tagger
