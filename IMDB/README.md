@@ -16,6 +16,8 @@ Download glove vectors from http://nlp.stanford.edu/data/glove.840B.300d.zip
 
 ### Download Stanford Pos Tagger
 Download Stanford Pos Tagger from https://nlp.stanford.edu/software/tagger.shtml#Download
+### Download Processed IMDB Data for BERT
+Download IMDBdata.zip from https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/
 ## Data Preprocess
 ### Preprocess IMDB Data
 Run build_embeddings.py

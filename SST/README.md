@@ -9,14 +9,16 @@ OpenHowNet == 0.0.1a8
 pytorch_transformers == 1.0.0
 loguru == 0.3.2
 ## Necessary Data Download
-### Download SST-2 Data
-Download SST-2 data that preprocessed by us from https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/
+### Download Processed SST-2 Data
+Download sst-2.zip from https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/
 ### Download Glove Vectors
 Download glove vectors from http://nlp.stanford.edu/data/glove.840B.300d.zip
 ### Download Stanford Pos Tagger
 Download Stanford Pos Tagger from https://nlp.stanford.edu/software/tagger.shtml#Download
+### Download Processed SST-2 Data for BERT
+Download SST2data.zip from https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/
 ## Data Preprocess
-### Preprocess IMDB Data
+### Preprocess SST-2 Data
 Run data_utils.py
 ### Generate Candidate Substitution Words
 Run gen_pos.py
