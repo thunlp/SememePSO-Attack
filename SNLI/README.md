@@ -1,13 +1,5 @@
 # README
-## Requirements
-tensorflow-gpu == 1.14.0   
-keras == 2.2.4   
-sklearn == 0.0  
-anytree == 2.6.0  
-nltk == 3.4.5
-OpenHowNet == 0.0.1a8
-pytorch_transformers == 1.0.0
-loguru == 0.3.2
+
 ## Necessary Data Download
 ### Download SNLI Data
 Download SNLI data from https://nlp.stanford.edu/projects/snli/snli_1.0.zip
