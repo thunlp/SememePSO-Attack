@@ -76,7 +76,7 @@ model.load_weights(model_path)
 test_y2 = np.array([[0, 1] if t == 1 else [1, 0] for t in test_y])
 all_scores_origin = model.evaluate(test_x, test_y2)
 print('all origin test_loss: %f, accuracy: %f' % (all_scores_origin[0], all_scores_origin[1]))
-ga_atttack = GeneticAtack(model,word_candidate, dataset,
+ga_atttack = PSOAttack(model,word_candidate, dataset,
                           max_iters=20,
                           pop_size=pop_size)
 SAMPLE_SIZE = len(dataset.test_y)
