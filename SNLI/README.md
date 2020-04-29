@@ -1,5 +1,4 @@
 # README
-
 ## Necessary Data Download
 ### Download SNLI Data
 Download SNLI data from https://nlp.stanford.edu/projects/snli/snli_1.0.zip

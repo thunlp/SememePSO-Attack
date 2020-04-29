@@ -1,13 +1,4 @@
 # README
-## Requirements
-tensorflow-gpu == 1.14.0   
-keras == 2.2.4   
-sklearn == 0.0  
-anytree == 2.6.0  
-nltk == 3.4.5
-OpenHowNet == 0.0.1a8
-pytorch_transformers == 1.0.0
-loguru == 0.3.2
 ## Necessary Data Download
 ### Download Processed SST-2 Data  
 Download sst-2.zip from https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/
