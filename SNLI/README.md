@@ -2,10 +2,10 @@
 ## Data
 - Download official SNLI data from [here](https://nlp.stanford.edu/projects/snli/snli_1.0.zip)
 - Download [dataset.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2Fdataset.zip)
-- (optional) Download processed SNLI data and models trained on SNLI:  [SNLIdata.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FSNLIdata.zip),
-[SNLI_used_data.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FSNLIdata.zip).
+- Download processed SNLI data for training models:  [SNLIdata.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FSNLIdata.zip)
+
 ## Process Data and Train Model
-If you do not want to use our processed data and models, you can also process data and train models by following steps.
+
 - Preprocess SNLI Data
 ```bash
 python tokenize_snli.py

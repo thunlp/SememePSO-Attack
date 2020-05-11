@@ -1,13 +1,11 @@
 # Running instructions on IMDB dataset
 ## Data
 - Download official IMDB data from [here](http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz)
-- (optional) Download processed IMDB data and models trained on IMDB: [IMDBdata.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FIMDBdata.zip), [IMDB_used_data.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FIMDB_used_data.zip)
-<!-- ### Download Processed IMDB Data for BERT -->
-<!-- ## Process Data and Train Models
-Since data processing and models training may take a lot of time and computing resources, we provide the data and models we use for experiments.  
-You can download them in IMDB_used_data.zip from https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/.  
-Use the data and models you can reproduce the results reported in the paper.   
-You can also process data and train models by following steps. -->
+- Download processed IMDB data for training models: [IMDBdata.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FIMDBdata.zip)
+
+
+
+
 ## Process Data and Train Model
 If you do not want to use our processed data and models, you can also process data and train models by following steps.
 - Process IMDB Data

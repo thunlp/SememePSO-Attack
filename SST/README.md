@@ -1,9 +1,9 @@
 # Running instructions on SST-2 dataset
 ## Data
 - Download SST-2 dataset: [sst-2.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2Fsst-2.zip)
-- (optional) Download processed SST-2 data and models trained on SST-2: [SST2data.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FSST2data.zip), [SST_used_data.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FSST_used_data.zip)
+- Download processed SST-2 data for training models: [SST2data.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FSST2data.zip)
 ## Process Data and Train Model
-If you do not want to use our processed data and models, you can also process data and train models by following steps.
+
 - Process SST-2 Data
 ```bash
 python data_utils.py
