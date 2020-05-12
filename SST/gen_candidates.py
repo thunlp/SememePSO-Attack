@@ -3,7 +3,7 @@ import OpenHowNet
 
 word_candidate = {}
 
-with open('aux_files/dataset.pkl', 'rb') as fh:
+with open('en_aux_files/dataset_13837.pkl', 'rb') as fh:
     dataset = pickle.load(fh)
 
 hownet_dict = OpenHowNet.HowNetDict()
@@ -68,7 +68,7 @@ def add_w1(w1, i1):
 
     w1_pos = set(word_pos[i1])
     for pos in pos_set:
-        word_candidate[i1][pos] = set()
+        word_candidate[i1][pos] = []
     valid_pos_w1 = w1_pos & pos_set
 
     if len(valid_pos_w1) == 0:
@@ -78,8 +78,8 @@ def add_w1(w1, i1):
     if len(new_w1_sememes) == 0:
         return
 
-    for w2, i2 in dataset.dict.items():
-
+    for i2 in range(1, 50001):
+        w2 = dataset.inv_dict[i2]
         if i1 == i2:
             continue
         w2_s_flag = 0
@@ -110,43 +110,28 @@ def add_w1(w1, i1):
         # not_in_num2 = count(w2_sememes,w1_sememes)
         # not_in_num=not_in_num1+not_in_num2
         can_be_sub = False
-        for s1_id in range(len(new_w1_sememes)):
-            pos_w1 = word_pos[i1][s1_id]
-            s1 = set(new_w1_sememes[s1_id])
-            if pos_w1 not in pos_set:
-                continue
-            for s2_id in range(len(new_w2_sememes)):
-                pos_w2 = word_pos[i2][s2_id]
-                s2 = set(new_w2_sememes[s2_id])
-                if pos_w1 == pos_w2 and s1 == s2:
-                    if w1_pos_sem == 'orig':
-                        if w2_pos_sem == 'orig':
-                            word_candidate[i1][pos_w1].add(i2)
-                    else:
-                        for p in eval('s_' + pos_w1):
-                            if w1 in eval(p):
-                                if w2 in eval(p):
-                                    word_candidate[i1][pos_w1].add(i2)
+        for s1 in new_w1_sememes:
+            for s2 in new_w2_sememes:
 
-w='delicious'
-add_w1(w,dataset.dict[w])
-#print(word_candidate[dataset.dict[w]])
-print([dataset.inv_dict[t] for t in word_candidate[dataset.dict[w]]['adj']])
-w='good'
-add_w1(w,dataset.dict[w])
-#print(word_candidate[dataset.dict[w]])
-print([dataset.inv_dict[t] for t in word_candidate[dataset.dict[w]]['adj']])
-w='character'
-add_w1(w,dataset.dict[w])
-#print(word_candidate[dataset.dict[w]])
-print([dataset.inv_dict[t] for t in word_candidate[dataset.dict[w]]['noun']])
-
-
+                if s1 == s2:
+                    can_be_sub = True
+                    break
+        if can_be_sub == True:
+            for pos_valid in all_pos:
+                if w1_pos_sem == 'orig':
+                    if w2_pos_sem == 'orig':
+                        word_candidate[i1][pos_valid].append(i2)
+                else:
+                    for p in eval('s_' + pos_valid):
+                        if w1 in eval(p):
+                            if w2 in eval(p):
+                                word_candidate[i1][pos_valid].append(i2)
 for w1,i1 in dataset.dict.items():
 
     print(i1)
 
-    add_w1(w1, i1)
+    add_w1(w1,i1)
+
 
 
 f = open('word_candidates_sense.pkl', 'wb')
