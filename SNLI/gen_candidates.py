@@ -1,27 +1,14 @@
 import pickle
+import OpenHowNet
 
+word_candidate = {}
 
-
-
-
-with open('./all_seqs.pkl', 'rb') as fh:
-    train,valid,test = pickle.load(fh)
 with open('./nli_tokenizer.pkl', 'rb') as fh:
     tokenizer = pickle.load(fh)
 vocab = {w: i for (w, i) in tokenizer.word_index.items()}
-inv_dict = {i: w for (w, i) in vocab.items()}
-word_candidate={}
-trains=[t[1:-1] for t in train['s2']]
-import pickle
-import OpenHowNet
+inv_vocab = {i: w for (w, i) in vocab.items()}
 
 hownet_dict = OpenHowNet.HowNetDict()
-
-
-
-
-
-
 
 f = open('sss_dict.pkl', 'rb')
 NNS, NNPS, JJR, JJS, RBR, RBS, VBD, VBG, VBN, VBP, VBZ, inv_NNS, inv_NNPS, inv_JJR, inv_JJS, inv_RBR, inv_RBS, inv_VBD, inv_VBG, inv_VBN, inv_VBP, inv_VBZ = pickle.load(
@@ -93,8 +80,8 @@ def add_w1(w1, i1):
     if len(new_w1_sememes) == 0:
         return
 
-    for i2 in range(1, 50001):
-        w2 =inv_dict[i2]
+    for w2, i2 in vocab.items():
+
         if i1 == i2:
             continue
         w2_s_flag = 0
@@ -124,26 +111,38 @@ def add_w1(w1, i1):
         # not_in_num1 = count(w1_sememes, w2_sememes)
         # not_in_num2 = count(w2_sememes,w1_sememes)
         # not_in_num=not_in_num1+not_in_num2
-        can_be_sub = False
-        for s1 in new_w1_sememes:
-            for s2 in new_w2_sememes:
+        w_flag=0
 
-                if s1 == s2:
-                    can_be_sub = True
+        for s1_id in range(len(new_w1_sememes)):
+            if w_flag == 1:
+                break
+            pos_w1 = word_pos[i1][s1_id]
+            s1 = set(new_w1_sememes[s1_id])
+            if pos_w1 not in pos_set:
+                continue
+            for s2_id in range(len(new_w2_sememes)):
+                if w_flag==1:
                     break
-        if can_be_sub == True:
-            for pos_valid in all_pos:
-                if w1_pos_sem == 'orig':
-                    if w2_pos_sem == 'orig':
-                        word_candidate[i1][pos_valid].append(i2)
-                else:
-                    for p in eval('s_' + pos_valid):
-                        if w1 in eval(p):
-                            if w2 in eval(p):
-                                word_candidate[i1][pos_valid].append(i2)
+                pos_w2 = word_pos[i2][s2_id]
+                s2 = set(new_w2_sememes[s2_id])
+                if pos_w1 == pos_w2 and s1 == s2:
+                    if w1_pos_sem == 'orig':
+                        if w2_pos_sem == 'orig':
+                            word_candidate[i1][pos_w1].append(i2)
+                            w_flag=1
+                            break
+                    else:
+                        for p in eval('s_' + pos_w1):
+                            if w1 in eval(p) and w2 in eval(p):
+                                word_candidate[i1][pos_w1].append(i2)
+                                w_flag=1
+                                break
 
 
-for w1, i1 in vocab.items():
+
+
+for w1,i1 in vocab.items():
+
     print(i1)
 
     add_w1(w1, i1)
@@ -151,3 +150,6 @@ for w1, i1 in vocab.items():
 
 f = open('word_candidates_sense.pkl', 'wb')
 pickle.dump(word_candidate, f)
+
+
+
