@@ -29,7 +29,7 @@ This repository is mainly contributed by Yuan Zang and Chenghao Yang.
 - Download [Stanford POS Tagger](https://nlp.stanford.edu/software/tagger.shtml#Download)
 
 ## Reproducibility Support
-Since data processing and models training may take a lot of time and computing resources, we provide the data and models we use for experiments. You can directly download the data and models we used for IMDB-related experiments from [TsinghuaCloud](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/). The instructions of how to use these files can be found in the `README.md` files in `IMDB/`, `SNLI/` and `SST/`.
+Since data processing and models training may take a lot of time and computing resources, we provide the data and models we use for experiments. You can directly download the data and models we used for related experiments from [TsinghuaCloud](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/) or [Google Drive](https://drive.google.com/drive/folders/1EiF6tYhqGRjXeIG7r0NdJMUT3ksb_gnL?usp=sharing). The instructions of how to use these files can be found in the `README.md` files in `IMDB/`, `SNLI/` and `SST/`.
 
 ## Running Instructions
 Please see the `README.md` files in `IMDB/`, `SNLI/` and `SST/` for specific running instructions for each attack models on corresponding downstream tasks.

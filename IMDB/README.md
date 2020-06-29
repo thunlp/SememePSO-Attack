@@ -1,7 +1,7 @@
 # Running instructions on IMDB dataset
 ## Data
 - Download official IMDB data from [here](http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz)
-- Download processed IMDB data for training models: [IMDBdata.zip](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FIMDBdata.zip)
+- Download processed IMDB data for training models: [IMDBdata.zip (Tsinghua)](https://cloud.tsinghua.edu.cn/d/b6b35b7b7fdb43c1bf8c/files/?p=%2FIMDBdata.zip) or [[IMDBdata.zip (Google Drive)]](https://drive.google.com/file/d/1bO7-l90JFh6nfgo6GS4LVW6e2Euc7eLh/view?usp=sharing)
 
 
 
