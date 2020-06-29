@@ -23,6 +23,7 @@ s_adj = ['JJR', 'JJS']
 s_adv = ['RBR', 'RBS']
 word_pos = {}
 word_sem = {}
+word_influction={}
 for w1, i1 in vocab.items():
     w1_s_flag = 0
     w1_orig = None
@@ -30,9 +31,11 @@ for w1, i1 in vocab.items():
         if w1 in eval(s):
             w1_s_flag = 1
             w1_orig = eval(s)[w1]
+            word_influction[i1]=s
             break
     if w1_s_flag == 0:
         w1_orig = w1
+        word_influction[i1] = 'orig'
     try:
         tree = hownet_dict.get_sememes_by_word(w1_orig, merge=False, structured=True, lang="en")
         w1_sememes = hownet_dict.get_sememes_by_word(w1_orig, structured=False, lang="en", merge=False)
@@ -54,19 +57,9 @@ for w1, i1 in vocab.items():
 
 def add_w1(w1, i1):
     word_candidate[i1] = {}
-    w1_s_flag = 0
-    w1_orig = None
-    w1_pos_sem = None
+    w1_pos_sem=word_influction[i1]
 
-    for s in s_ls:
-        if w1 in eval(s):
-            w1_s_flag = 1
-            w1_pos_sem = s
-            w1_orig = eval(s)[w1]
-            break
-    if w1_s_flag == 0:
-        w1_orig = w1
-        w1_pos_sem = 'orig'
+
 
     w1_pos = set(word_pos[i1])
     for pos in pos_set:
@@ -81,21 +74,11 @@ def add_w1(w1, i1):
         return
 
     for w2, i2 in vocab.items():
-
+        if i2>50000:
+            break
         if i1 == i2:
             continue
-        w2_s_flag = 0
-        w2_orig = None
-        w2_pos_sem = None
-        for s in s_ls:
-            if w2 in eval(s):
-                w2_s_flag = 1
-                w2_pos_sem = s
-                w2_orig = eval(s)[w2]
-                break
-        if w2_s_flag == 0:
-            w2_orig = w2
-            w2_pos_sem = 'orig'
+        w2_pos_sem=word_influction[i2]
 
         w2_pos = set(word_pos[i2])
         all_pos = w2_pos & w1_pos & pos_set
@@ -142,10 +125,12 @@ def add_w1(w1, i1):
 
 
 for w1,i1 in vocab.items():
-
+    if i1>50000:
+        break
     print(i1)
 
     add_w1(w1, i1)
+
 
 
 f = open('word_candidates_sense.pkl', 'wb')
