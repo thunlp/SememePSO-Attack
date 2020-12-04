@@ -8,9 +8,9 @@ import copy
 class PSOAttack(object):
     def __init__(self, model, candidate,
                  dataset,
-                 pop_size=20, max_iters=100):
+                 pop_size=60, max_iters=20):
         self.candidate = candidate
-
+        self.invoke_dict={}
         self.dataset = dataset
         self.dict = self.dataset.dict
         self.inv_dict = self.dataset.inv_dict
@@ -20,21 +20,75 @@ class PSOAttack(object):
 
         self.temp = 0.3
 
+
     def do_replace(self, x_cur, pos, new_word):
         x_new = x_cur.copy()
         x_new[pos] = new_word
         return x_new
+    def predict_batch(self,sentences):
 
-    def mutate(self, x_cur, w_select_probs, w_list):
+        return np.array([self.predict(s) for s in sentences])
+    def predict(self,sentence):
+        if tuple(sentence) in self.invoke_dict:
+            return self.invoke_dict[tuple(sentence)]
+        tem=self.model.predict(np.array([sentence]))[0]
+        self.invoke_dict[tuple(sentence)]=tem
+
+        return tem
+    def select_best_replacement(self, pos, x_cur, x_orig, target, replace_list):
+        """ Select the most effective replacement to word at pos (pos)
+        in (x_cur) between the words in replace_list """
+        new_x_list = [self.do_replace(
+            x_cur, pos, w) if x_orig[pos] != w and w != 0 else x_cur for w in replace_list]
+        new_x_preds = self.predict_batch(new_x_list)
+        # Keep only top_n
+        # replace_list = replace_list[:self.top_n]
+        # new_x_list = new_x_list[:self.top_n]
+        # new_x_preds = new_x_preds[:self.top_n,:]
+        x_scores = new_x_preds[:, target]
+        orig_score = self.predict(x_cur)[target]
+
+
+        new_x_scores = x_scores - orig_score
+        # Eliminate not that clsoe words
+
+        if (np.max(new_x_scores) > 0):
+            best_id = np.argsort(new_x_scores)[-1]
+            if np.argmax(new_x_preds[best_id]) == target:
+                return [1, new_x_list[best_id]]
+            return [x_scores[best_id], new_x_list[best_id]]
+        return [orig_score, x_cur]
+
+    def perturb(self, x_cur, x_orig, neigbhours, w_select_probs, target):
+        # Pick a word that is not modified and is not UNK
         x_len = w_select_probs.shape[0]
-        # print('w_select_probs:',w_select_probs)
+        # to_modify = [idx  for idx in range(x_len) if (x_cur[idx] == x_orig[idx] and self.inv_dict[x_cur[idx]] != 'UNK' and
+        #                                             self.dist_mat[x_cur[idx]][x_cur[idx]] != 100000) and
+        #                     x_cur[idx] not in self.skip_list
+        #            ]
         rand_idx = np.random.choice(x_len, 1, p=w_select_probs)[0]
-        return self.do_replace(x_cur, rand_idx, w_list[rand_idx])
+        while x_cur[rand_idx] != x_orig[rand_idx] and np.sum(x_orig != x_cur) < np.sum(np.sign(w_select_probs)):
 
-    def generate_population(self, x_orig, neigbhours_list, target, pop_size, x_len, neighbours_len):
-        h_score, w_list = self.gen_h_score(x_len, target, neighbours_len, neigbhours_list, x_orig)
-        return [self.mutate(x_orig, h_score, w_list) for _ in
-                range(pop_size)]
+            rand_idx = np.random.choice(x_len, 1, p=w_select_probs)[0]
+
+        # src_word = x_cur[rand_idx]
+        # replace_list,_ =  glove_utils.pick_most_similar_words(src_word, self.dist_mat, self.top_n, 0.5)
+        replace_list = neigbhours[rand_idx]
+        return self.select_best_replacement(rand_idx, x_cur, x_orig, target, replace_list)
+
+    def generate_population(self, x_orig, neigbhours_list, w_select_probs, target, pop_size):
+        pop = []
+        pop_scores=[]
+        for i in range(pop_size):
+            tem = self.perturb(x_orig, x_orig, neigbhours_list, w_select_probs, target)
+            if tem is None:
+                return None
+            if tem[0] == 1:
+                return [tem[1]]
+            else:
+                pop_scores.append(tem[0])
+                pop.append(tem[1])
+        return pop_scores,pop
 
     def turn(self, x1, x2, prob, x_len):
         x_new = copy.deepcopy(x2)
@@ -43,13 +97,6 @@ class PSOAttack(object):
                 x_new[i] = x1[i]
         return x_new
 
-    def gen_most_change(self, pos, x_cur, target, replace_list):
-        new_x_list = [self.do_replace(x_cur, pos, w) if x_cur[pos] != w and w != 0 else x_cur for w in replace_list]
-        new_x_preds = self.model.predict(np.array(new_x_list))
-        new_x_scores = new_x_preds[:, target]
-        orig_score = self.model.predict(x_cur[np.newaxis, :])[0, target]
-        new_x_scores = new_x_scores - orig_score
-        return np.max(new_x_scores), new_x_list[np.argsort(new_x_scores)[-1]][pos]
 
     def norm(self, n):
 
@@ -68,26 +115,7 @@ class PSOAttack(object):
 
         return new_n
 
-    def gen_h_score(self, x_len, target, neighbours_len, neigbhours_list, x_now):
 
-        w_list = []
-        prob_list = []
-        for i in range(x_len):
-            if neighbours_len[i] == 0:
-                w_list.append(x_now[i])
-                prob_list.append(0)
-                continue
-            p, w = self.gen_most_change(i, x_now, target, neigbhours_list[i])
-            w_list.append(w)
-            prob_list.append(p)
-
-        prob_list = self.norm(prob_list)
-        # print('neighbours_len:',neighbours_len)
-        # print('prob_list:',prob_list)
-
-        h_score = prob_list
-        h_score = np.array(h_score)
-        return h_score, w_list
 
     def equal(self, a, b):
         if a == b:
@@ -101,35 +129,23 @@ class PSOAttack(object):
     def count_change_ratio(self, x, x_orig, x_len):
         change_ratio = float(np.sum(x != x_orig)) / float(x_len)
         return change_ratio
+    '''
+    def gen_pos_saliency(self,pos,x_orig,target,orig_score):
+        text_orig=[self.inv_dict[t] for t in x_orig if t!=0]
+        text_new=' '.join(self.do_replace(text_orig,pos,'<unk>'))
+        s_new=self.predict_text(text_new)[target]
 
-    def cal_fitness(self, pop, x_orig, x_len, orig_score, pop_scores):
-        change_ratio = [self.count_change_ratio(p, x_orig, x_len) for p in pop]
-        for t in range(len(change_ratio)):
-            if change_ratio[t] == 0:
-                change_ratio[t] = float(1 / x_len)
-        preds_change = [p - orig_score for p in pop_scores]
-        fitness = []
-        for i in range(len(pop)):
-            fitness.append(preds_change[i] / change_ratio[i])
-        return fitness
-
-    def cal_u(self, S1, S2, alpha, rank):
-        if rank <= S1 * self.pop_size:
-            u1 = 1 + alpha
-            u2 = 1 - alpha
-        elif rank > S1 * self.pop_size and rank < S2 * self.pop_size:
-            u1 = 1
-            u2 = 1
-        else:
-            u1 = 1 - alpha
-            u2 = 1 + alpha
-        return u1, u2
-
+        saliency=orig_score-s_new
+        return saliency
+    '''
     def attack(self, x_orig, target, pos_tags):
+
+        self.invoke_dict = {}
         x_adv = x_orig.copy()
         x_len = np.sum(np.sign(x_orig))
         x_len = int(x_len)
         pos_list = ['JJ', 'NN', 'RB', 'VB']
+
         neigbhours_list = []
         for i in range(x_len):
             if x_adv[i] not in range(1, 50000):
@@ -154,24 +170,38 @@ class PSOAttack(object):
 
         neighbours_len = [len(x) for x in neigbhours_list]
 
-        orig_score = self.model.predict(x_orig[np.newaxis, :])[0, target]
+        w_select_probs=[]
+        for pos in range(x_len):
+            if neighbours_len[pos]==0:
+                w_select_probs.append(0)
+            else:
+                w_select_probs.append(min(neighbours_len[pos],10))
+        w_select_probs=w_select_probs/np.sum(w_select_probs)
+
+        orig_score=self.predict(x_orig)
+        print('orig',orig_score[target])
+
         if np.sum(neighbours_len) == 0:
             return None
 
         print(neighbours_len)
 
-        pop = self.generate_population(x_orig, neigbhours_list, target, self.pop_size, x_len, neighbours_len)
-        part_elites = copy.deepcopy(pop)
 
-        pop_preds = self.model.predict(np.array(pop))
-        pop_scores = pop_preds[:, target]
+
+        tem = self.generate_population(x_orig, neigbhours_list, w_select_probs, target, self.pop_size)
+        if tem is None:
+            return None
+        if len(tem)==1:
+            return tem[0]
+        pop_scores,pop=tem
+        part_elites = copy.deepcopy(pop)
         part_elites_scores = pop_scores
         all_elite_score = np.max(pop_scores)
-        pop_ranks = np.argsort(pop_scores)[::-1]
-        top_attack = pop_ranks[0]
+        pop_ranks = np.argsort(pop_scores)
+        top_attack = pop_ranks[-1]
         all_elite = pop[top_attack]
-        if np.argmax(pop_preds[top_attack, :]) == target:
-            return pop[top_attack]
+
+
         Omega_1 = 0.8
         Omega_2 = 0.2
         C1_origin = 0.8
@@ -203,34 +233,47 @@ class PSOAttack(object):
                 if np.random.uniform() < P2:
                     pop[id] = self.turn(all_elite, pop[id], turn_prob, x_len)
 
-            pop_preds = self.model.predict(np.array(pop))
-            pop_scores = pop_preds[:, target]
-            pop_ranks = np.argsort(pop_scores)[::-1]
-            top_attack = pop_ranks[0]
+            pop_scores = []
+            pop_scores_all=[]
+            for a in pop:
+                pt = self.predict(a)
+
+                pop_scores.append(pt[target])
+                pop_scores_all.append(pt)
+            pop_ranks = np.argsort(pop_scores)
+            top_attack = pop_ranks[-1]
 
             print('\t\t', i, ' -- ', pop_scores[top_attack])
-            if np.argmax(pop_preds[top_attack, :]) == target:
-                return pop[top_attack]
+            for pt_id in range(len(pop_scores_all)):
+                pt = pop_scores_all[pt_id]
+                if np.argmax(pt) == target:
+
+                    return pop[pt_id]
 
             new_pop = []
-            for x in pop:
+            new_pop_scores=[]
+            for id in range(len(pop)):
+                x=pop[id]
                 change_ratio = self.count_change_ratio(x, x_orig, x_len)
                 p_change = 1 - 2*change_ratio
                 if np.random.uniform() < p_change:
-                    new_h, new_w_list = self.gen_h_score(x_len, target, neighbours_len, neigbhours_list, x)
-                    new_pop.append(self.mutate(x, new_h, new_w_list))
+                    tem = self.perturb(x, x_orig, neigbhours_list, w_select_probs, target)
+                    if tem is None:
+                        return None
+                    if tem[0] == 1:
+
+                        return tem[1]
+                    else:
+                        new_pop_scores.append(tem[0])
+                        new_pop.append(tem[1])
                 else:
+                    new_pop_scores.append(pop_scores[id])
                     new_pop.append(x)
             pop = new_pop
 
-            pop_preds = self.model.predict(np.array(pop))
-            pop_scores = pop_preds[:, target]
-            pop_ranks = np.argsort(pop_scores)[::-1]
-            top_attack = pop_ranks[0]
-
-
-            if np.argmax(pop_preds[top_attack, :]) == target:
-                return pop[top_attack]
+            pop_scores = new_pop_scores
+            pop_ranks = np.argsort(pop_scores)
+            top_attack = pop_ranks[-1]
             for k in range(self.pop_size):
                 if pop_scores[k] > part_elites_scores[k]:
                     part_elites[k] = pop[k]
@@ -240,3 +283,4 @@ class PSOAttack(object):
                 all_elite = elite
                 all_elite_score = np.max(pop_scores)
         return None
+
