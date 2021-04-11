@@ -7,13 +7,9 @@ import copy
 
 class PSOAttack(object):
     def __init__(self, model, candidate,
-                 dataset,
                  pop_size=60, max_iters=20):
         self.candidate = candidate
         self.invoke_dict={}
-        self.dataset = dataset
-        self.dict = self.dataset.dict
-        self.inv_dict = self.dataset.inv_dict
         self.model = model
         self.max_iters = max_iters
         self.pop_size = pop_size
